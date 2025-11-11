@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { LandingPageData } from '../types';
 import { HeroSection } from './HeroSection';
@@ -7,7 +6,6 @@ import { ProductGrid } from './ProductGrid';
 import { BrandStorySection } from './BrandStorySection';
 import { FooterSection } from './FooterSection';
 import { SparklesIcon } from './icons/SparklesIcon';
-import { CouponSection } from './CouponSection';
 
 interface OutputPanelProps {
   data: LandingPageData | null;
@@ -88,9 +86,9 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({ data, isLoading, error
           <ProductGrid 
             products={data.products} 
             themeVector={data.design.themeVectors.productGrid}
+            couponOffer={data.couponOffer}
           />
           <BrandStorySection brandStory={data.brandStory} />
-          <CouponSection couponOffer={data.couponOffer} />
           <FooterSection 
             footer={data.footer} 
             themeVector={data.design.themeVectors.footer}

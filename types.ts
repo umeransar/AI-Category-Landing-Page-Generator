@@ -1,3 +1,4 @@
+
 export interface Product {
   title: string;
   imageUrl: string;
@@ -50,9 +51,9 @@ export interface LandingPageData {
       footer?: string;
     };
     heroImageUrls: {
-      desktop: string;
-      tablet: string;
-      mobile: string;
+        desktop: string;
+        tablet: string;
+        mobile: string;
     };
   };
 }

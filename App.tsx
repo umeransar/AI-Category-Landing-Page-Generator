@@ -29,8 +29,8 @@ const App: React.FC = () => {
           ctaUrl: heroData.ctaUrl || '#',
         },
         design: {
-          ...geminiData.design,
-          heroImageUrls: heroData.banners,
+            ...geminiData.design,
+            heroImageUrls: heroData.imageUrls, // Combine user-provided banners with AI design
         },
       };
       setLandingPageData(finalData);

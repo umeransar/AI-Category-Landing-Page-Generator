@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { LandingPageData } from '../types';
 import { ThemeIcon } from './ThemeIcon';
@@ -11,17 +10,17 @@ interface HeroSectionProps {
 }
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ hero, categoryName, heroImageUrls, themeVector }) => {
-    const fallbackImage = heroImageUrls.desktop || heroImageUrls.tablet || heroImageUrls.mobile || '';
-  
+    const hasImages = heroImageUrls.desktop || heroImageUrls.tablet || heroImageUrls.mobile;
+    
     return (
     <div className="relative bg-gray-900 text-white min-h-[400px] flex items-center">
-      <div className="absolute inset-0 w-full h-full">
-         {fallbackImage && (
+      <div className="absolute inset-0 w-full h-full bg-black">
+         {hasImages && (
             <picture>
-                {heroImageUrls.mobile && <source media="(max-width: 640px)" srcSet={heroImageUrls.mobile} />}
-                {heroImageUrls.tablet && <source media="(max-width: 1024px)" srcSet={heroImageUrls.tablet} />}
+                {heroImageUrls.mobile && <source media="(max-width: 767px)" srcSet={heroImageUrls.mobile} />}
+                {heroImageUrls.tablet && <source media="(max-width: 1023px)" srcSet={heroImageUrls.tablet} />}
                 <img 
-                    src={fallbackImage} 
+                    src={heroImageUrls.desktop || heroImageUrls.tablet || heroImageUrls.mobile}
                     alt={categoryName} 
                     className="w-full h-full object-cover opacity-20" 
                 />
