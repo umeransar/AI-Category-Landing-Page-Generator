@@ -1,0 +1,5 @@
+{
+  "name": "AI Category Landing Page Generator",
+  "description": "An AI-powered tool that analyzes an e-commerce category link and automatically generates a complete, visually appealing category landing page using real product data.",
+  "requestFramePermissions": []
+}
