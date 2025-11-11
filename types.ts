@@ -21,6 +21,12 @@ export interface LandingPageData {
   brandStory: {
     paragraph: string;
   };
+  couponOffer?: {
+    headline: string;
+    description: string;
+    discountValue: string;
+    ctaText: string;
+  };
   footer: {
     ctaText: string;
   };

@@ -51,6 +51,17 @@ const fullResponseSchema = {
             },
             required: ["paragraph"]
         },
+        couponOffer: {
+            type: Type.OBJECT,
+            description: "Details for an email signup coupon offer. Should be omitted entirely if not requested.",
+            properties: {
+                headline: { type: Type.STRING, description: "Catchy headline for the coupon section, e.g., 'Get $10 Off'." },
+                description: { type: Type.STRING, description: "Short description encouraging signup." },
+                discountValue: { type: Type.STRING, description: "The value of the discount, e.g., '$10 OFF' or '15% OFF'." },
+                ctaText: { type: Type.STRING, description: "The text for the submit button, e.g., 'Get My Code'." }
+            },
+            required: ["headline", "description", "discountValue", "ctaText"]
+        },
         footer: {
             type: Type.OBJECT,
             properties: {
@@ -144,7 +155,7 @@ export const extractProductsFromUrl = async (categoryLink: string): Promise<Prod
 };
 
 
-export const generateLandingPageData = async (categoryLink: string, products: Product[], holidayTheme: string): Promise<Omit<LandingPageData, 'products' | 'design' | 'hero'> & { hero: Omit<LandingPageData['hero'], 'ctaUrl'>, design: Omit<LandingPageData['design'], 'heroImageUrls'>}> => {
+export const generateLandingPageData = async (categoryLink: string, products: Product[], holidayTheme: string, isCouponEnabled: boolean): Promise<Omit<LandingPageData, 'products' | 'design' | 'hero'> & { hero: Omit<LandingPageData['hero'], 'ctaUrl'>, design: Omit<LandingPageData['design'], 'heroImageUrls'>}> => {
     if (!process.env.API_KEY) {
         throw new Error("API_KEY environment variable not set");
     }
@@ -160,6 +171,8 @@ export const generateLandingPageData = async (categoryLink: string, products: Pr
     };
     delete pageContentSchema.properties.products;
     pageContentSchema.required = pageContentSchema.required.filter((p: string) => p !== 'products');
+    // Coupon offer is optional, so it should not be in the required list
+    pageContentSchema.required = pageContentSchema.required.filter((p: string) => p !== 'couponOffer');
 
 
     const themeInstruction = holidayTheme !== 'None' 
@@ -172,23 +185,36 @@ export const generateLandingPageData = async (categoryLink: string, products: Pr
         No specific theme. Generate a standard, evergreen landing page with a visually appealing, professional color palette.
         `;
 
-    const prompt = `
-        You are a smart web page generator and designer AI. Your job is to use the provided PRODUCT DATA and CATEGORY LINK to generate structured JSON data for a Category Landing Page. The product list is already finalized, so do NOT generate a 'products' array in your response.
+    const couponInstruction = isCouponEnabled
+        ? `
+        COUPON OFFER:
+        Generate a compelling "couponOffer" section. The goal is to get users to submit their email in exchange for a discount. Create a catchy headline, a short description, and a discount value of approximately $10 (e.g., '$10 OFF'). The ctaText should be a call to action like 'Get My Code'.
+        `
+        : `
+        COUPON OFFER:
+        Do not generate a "couponOffer" section. It has been disabled. Omit the 'couponOffer' key from your JSON response.
+        `;
 
-        CATEGORY LINK: ${categoryLink} (Use this for context, like deriving the category name).
-        PRODUCT DATA (Use this as the source of truth for all content generation):
+    const prompt = `
+        You are a smart web page generator and designer AI. Your job is to use the provided PRODUCT DATA to generate structured JSON data for a Category Landing Page. The product list is the ONLY source of truth. Do NOT generate a 'products' array in your response.
+
+        PRODUCT DATA (This is the absolute and only source of truth for all content generation. Derive the category name, themes, and all copy from this data):
         ${JSON.stringify(products, null, 2)}
         
         ${themeInstruction}
+        
+        ${couponInstruction}
 
         MAIN OBJECTIVE:
-        Generate structured JSON data for all parts of the landing page EXCEPT for the product list itself. All fields (categoryName, hero, intro, etc.) should be creatively generated based on the provided products and the CAMPAIGN THEME.
+        Generate structured JSON data for all parts of the landing page EXCEPT for the product list itself. All fields (categoryName, hero, intro, etc.) MUST be creatively generated based ONLY on the provided products and the CAMPAIGN THEME.
 
         DETAILED REQUIREMENTS:
 
-        1. CONTENT: Generate compelling, theme-appropriate copy for all text fields (hero, intro, brand story, CTAs, SEO). The content MUST be directly related to the products provided above. For example, the categoryName MUST match the products.
+        1. CONTENT: Generate compelling, theme-appropriate copy for all text fields (hero, intro, brand story, CTAs, SEO). The content MUST be directly related to the products provided above. For example, the categoryName MUST be derived from the provided product data. DO NOT use any external knowledge about any URLs.
 
-        2. DESIGN SYSTEM:
+        2. COUPON (if enabled): If instructed to create a coupon offer, generate persuasive copy to maximize email signups.
+
+        3. DESIGN SYSTEM:
         - COLOR PALETTE: Based on the CAMPAIGN THEME, generate a 6-point color palette. The colors MUST be hex codes (e.g., "#FFFFFF").
           - "primary": For main buttons and calls-to-action.
           - "secondary": For card backgrounds and secondary elements.

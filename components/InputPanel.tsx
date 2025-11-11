@@ -15,7 +15,7 @@ export interface HeroData {
 }
 
 interface InputPanelProps {
-  onGenerate: (link: string, products: Product[], holiday: string, heroData: HeroData) => void;
+  onGenerate: (link: string, products: Product[], holiday: string, heroData: HeroData, isCouponEnabled: boolean) => void;
   isLoading: boolean;
 }
 
@@ -101,7 +101,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({ onGenerate, isLoading })
   const [newProduct, setNewProduct] = useState<Product>(initialProductState);
   const [heroCtaUrl, setHeroCtaUrl] = useState<string>('https://example.com/shop-now');
   const [heroBanners, setHeroBanners] = useState({ desktop: '', tablet: '', mobile: '' });
-
+  const [isCouponEnabled, setIsCouponEnabled] = useState<boolean>(true);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -109,7 +109,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({ onGenerate, isLoading })
       alert("Please fetch or add at least one product before generating the page.");
       return;
     }
-    onGenerate(link, products, selectedHoliday, { ctaUrl: heroCtaUrl, banners: heroBanners });
+    onGenerate(link, products, selectedHoliday, { ctaUrl: heroCtaUrl, banners: heroBanners }, isCouponEnabled);
   };
 
   const handleFetchProducts = async () => {
@@ -256,6 +256,25 @@ export const InputPanel: React.FC<InputPanelProps> = ({ onGenerate, isLoading })
               <select id="holiday-theme" value={selectedHoliday} onChange={(e) => setSelectedHoliday(e.target.value)} className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 {holidays.map(holiday => <option key={holiday} value={holiday} className="bg-gray-700 text-white">{holiday}</option>)}
               </select>
+            </div>
+
+            <div className="relative flex items-start">
+              <div className="flex h-5 items-center">
+                <input
+                  id="coupon-enabled"
+                  name="coupon-enabled"
+                  type="checkbox"
+                  checked={isCouponEnabled}
+                  onChange={(e) => setIsCouponEnabled(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-500 bg-gray-700 text-indigo-600 focus:ring-indigo-500"
+                />
+              </div>
+              <div className="ml-3 text-sm">
+                <label htmlFor="coupon-enabled" className="font-medium text-gray-300">
+                  Email Coupon Section
+                </label>
+                <p className="text-gray-400">Include a section to capture emails for a discount code.</p>
+              </div>
             </div>
 
             <button type="submit" disabled={isLoading || products.length === 0} className="w-full flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-900/50 disabled:text-gray-400 disabled:cursor-not-allowed transition-colors">

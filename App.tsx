@@ -10,7 +10,7 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleGenerate = async (link: string, products: Product[], holiday: string, heroData: HeroData) => {
+  const handleGenerate = async (link: string, products: Product[], holiday: string, heroData: HeroData, isCouponEnabled: boolean) => {
     if (products.length === 0) {
       setError('Please fetch or add some products before generating the page.');
       return;
@@ -20,7 +20,7 @@ const App: React.FC = () => {
     setLandingPageData(null);
 
     try {
-      const geminiData = await generateLandingPageData(link, products, holiday);
+      const geminiData = await generateLandingPageData(link, products, holiday, isCouponEnabled);
       const finalData: LandingPageData = {
         ...geminiData,
         products, // Ensure the final product list is the one from the input panel
