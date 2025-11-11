@@ -28,21 +28,44 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ hero, categoryName, he
          )}
       </div>
       <div className="relative max-w-7xl mx-auto py-24 px-4 sm:py-32 sm:px-6 lg:px-8 text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl flex items-center justify-center gap-4">
-          <ThemeIcon name={themeVector} className="w-12 h-12 opacity-80" />
-          <span>{categoryName}</span>
-        </h1>
-        <p className="mt-6 max-w-2xl mx-auto text-xl text-gray-200">
-          {hero.tagline}
-        </p>
+        <div className="flex items-center justify-center gap-4 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+          <ThemeIcon name={themeVector} className="w-12 h-12 opacity-80 flex-shrink-0" />
+          <h1>
+            <span className="hidden lg:inline">{hero.desktop.title || categoryName}</span>
+            <span className="hidden md:inline lg:hidden">{hero.tablet.title || categoryName}</span>
+            <span className="inline md:hidden">{hero.mobile.title || categoryName}</span>
+          </h1>
+        </div>
+        <div className="mt-6 max-w-2xl mx-auto text-xl text-gray-200">
+            <p className="hidden lg:block">{hero.desktop.tagline}</p>
+            <p className="hidden md:block lg:hidden">{hero.tablet.tagline}</p>
+            <p className="block md:hidden">{hero.mobile.tagline}</p>
+        </div>
         <div className="mt-8">
-          <a
-            href={hero.ctaUrl}
-            style={{ backgroundColor: 'var(--primary-color)', color: 'var(--text-on-primary-color)'}}
-            className="inline-block border border-transparent rounded-md py-3 px-8 text-base font-medium transition hover:opacity-90"
-          >
-            {hero.ctaText}
-          </a>
+            {/* Desktop Button */}
+            <a
+                href={hero.desktop.ctaUrl}
+                style={{ backgroundColor: 'var(--primary-color)', color: 'var(--text-on-primary-color)'}}
+                className="hidden lg:inline-block border border-transparent rounded-md py-3 px-8 text-base font-medium transition hover:opacity-90"
+            >
+                {hero.desktop.ctaText}
+            </a>
+            {/* Tablet Button */}
+            <a
+                href={hero.tablet.ctaUrl}
+                style={{ backgroundColor: 'var(--primary-color)', color: 'var(--text-on-primary-color)'}}
+                className="hidden md:inline-block lg:hidden border border-transparent rounded-md py-3 px-8 text-base font-medium transition hover:opacity-90"
+            >
+                {hero.tablet.ctaText}
+            </a>
+            {/* Mobile Button */}
+            <a
+                href={hero.mobile.ctaUrl}
+                style={{ backgroundColor: 'var(--primary-color)', color: 'var(--text-on-primary-color)'}}
+                className="inline-block md:hidden border border-transparent rounded-md py-3 px-8 text-base font-medium transition hover:opacity-90"
+            >
+                {hero.mobile.ctaText}
+            </a>
         </div>
       </div>
     </div>
