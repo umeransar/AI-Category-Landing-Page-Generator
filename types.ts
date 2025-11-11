@@ -31,6 +31,7 @@ export interface LandingPageContent {
     highlights: string[];
   };
   brandStory: {
+    headline: string;
     paragraph: string;
   };
   couponOffer?: {

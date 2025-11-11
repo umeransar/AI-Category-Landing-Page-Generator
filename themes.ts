@@ -12,7 +12,7 @@ export const PALETTES: Record<string, ColorPalette> = {
     'christmas-traditional': {
         primary: '#C8102E', // Bright Red
         secondary: '#F8F8F8', // Off-white
-        accent: '#F1C40F', // Gold
+        accent: '#1A2E05', // Dark Green
         background: '#FFFFFF', // White
         text: '#1A2E05', // Dark Green
         textOnPrimary: '#FFFFFF',

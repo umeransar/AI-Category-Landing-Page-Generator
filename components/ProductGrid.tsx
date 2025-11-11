@@ -92,7 +92,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ products, themeVector,
           </div>
         )}
 
-        <div className="mt-12 grid grid-cols-1 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 gap-x-6">
+        <div className="mt-12 grid grid-cols-1 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 gap-x-4">
           {products.map((product) => (
             <ProductCard key={product.title} product={product} />
           ))}

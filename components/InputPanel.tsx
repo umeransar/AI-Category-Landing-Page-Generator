@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { SparklesIcon } from './icons/SparklesIcon';
 import { TrashIcon } from './icons/TrashIcon';
 import type { Product, HeroContent } from '../types';
-import { extractProductsFromUrl } from '../services/geminiService';
+import { extractProductsFromUrl, extractSingleProductFromUrl } from '../services/geminiService';
 import { UploadIcon } from './icons/UploadIcon';
 import { PencilIcon } from './icons/PencilIcon';
 
@@ -70,6 +70,10 @@ export const InputPanel: React.FC<InputPanelProps> = ({
   const [newProduct, setNewProduct] = useState<Product>(initialProductState);
   const [isCouponEnabled, setIsCouponEnabled] = useState<boolean>(true);
   
+  const [singleProductLink, setSingleProductLink] = useState<string>('');
+  const [isFetchingSingle, setIsFetchingSingle] = useState(false);
+  const [singleFetchError, setSingleFetchError] = useState<string | null>(null);
+
   const [heroImageUrls, setHeroImageUrls] = useState({
     desktop: 'https://images.unsplash.com/photo-1555529771-835f5de6b662?q=80&w=1920&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
     tablet: 'https://images.unsplash.com/photo-1519642918688-7e43b19245d8?q=80&w=1024&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
@@ -145,6 +149,24 @@ export const InputPanel: React.FC<InputPanelProps> = ({
       setIsFetching(false);
     }
   };
+  
+  const handleFetchSingleProduct = async () => {
+    if (!singleProductLink) {
+      setSingleFetchError('Please enter a product link to fetch.');
+      return;
+    }
+    setIsFetchingSingle(true);
+    setSingleFetchError(null);
+    try {
+      const fetchedProduct = await extractSingleProductFromUrl(singleProductLink);
+      setProducts(prevProducts => [...prevProducts, fetchedProduct]);
+      setSingleProductLink('');
+    } catch (err) {
+      setSingleFetchError(err instanceof Error ? err.message : 'An unknown error occurred.');
+    } finally {
+      setIsFetchingSingle(false);
+    }
+  };
 
   const handleRemoveProduct = (indexToRemove: number) => {
     setProducts(products.filter((_, index) => index !== indexToRemove));
@@ -211,7 +233,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({
           <div className="space-y-4">
             <div>
               <label htmlFor="category-link" className="block text-sm font-medium text-gray-300 mb-1">
-                E-commerce Category Link
+                Fetch from Category
               </label>
               <div className="flex items-stretch space-x-2">
                 <input
@@ -228,25 +250,45 @@ export const InputPanel: React.FC<InputPanelProps> = ({
                 </button>
               </div>
               {fetchError && <p className="mt-1 text-xs text-red-400">{fetchError}</p>}
-              <p className="mt-2 text-xs text-gray-400">
-                Paste a link and click 'Fetch' to auto-load products.
-              </p>
+              
+              <div className="mt-2">
+                  <label htmlFor="num-products" className="sr-only">Number of Products to Fetch</label>
+                  <select
+                    id="num-products"
+                    value={numProducts}
+                    onChange={(e) => setNumProducts(Number(e.target.value))}
+                    className="w-full px-3 py-2 text-xs border border-gray-600 bg-gray-700 text-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                  >
+                    <option value={4}>Up to 4 products</option>
+                    <option value={6}>Up to 6 products</option>
+                    <option value={8}>Up to 8 products</option>
+                  </select>
+              </div>
+            </div>
+
+            <div className="relative">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-600" /></div>
+                <div className="relative flex justify-center text-sm"><span className="bg-gray-800 px-2 text-gray-400">Or</span></div>
             </div>
 
             <div>
-              <label htmlFor="num-products" className="block text-sm font-medium text-gray-300 mb-1">
-                Number of Products to Fetch
+              <label htmlFor="single-product-link" className="block text-sm font-medium text-gray-300 mb-1">
+                Fetch a Single Product
               </label>
-              <select
-                id="num-products"
-                value={numProducts}
-                onChange={(e) => setNumProducts(Number(e.target.value))}
-                className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              >
-                <option value={4}>Up to 4 products</option>
-                <option value={6}>Up to 6 products</option>
-                <option value={8}>Up to 8 products</option>
-              </select>
+              <div className="flex items-stretch space-x-2">
+                <input
+                  type="url"
+                  id="single-product-link"
+                  value={singleProductLink}
+                  onChange={(e) => setSingleProductLink(e.target.value)}
+                  className="flex-grow w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  placeholder="https://yourstore.com/products/..."
+                />
+                <button type="button" onClick={handleFetchSingleProduct} disabled={isFetchingSingle || isGenerating} className="px-4 py-2 border border-gray-600 text-sm font-medium rounded-md text-gray-200 bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                  {isFetchingSingle ? '...' : 'Fetch'}
+                </button>
+              </div>
+              {singleFetchError && <p className="mt-1 text-xs text-red-400">{singleFetchError}</p>}
             </div>
 
             <div className="relative">

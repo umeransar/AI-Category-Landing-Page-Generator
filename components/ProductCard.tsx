@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { Product } from '../types';
 
@@ -46,8 +45,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <p className="mt-1 text-sm opacity-70 flex-grow">{product.tagline}</p>
         <div className="mt-auto pt-4">
             <div className="flex items-baseline gap-2">
-                <p className="text-lg font-bold text-[var(--primary-color)]">{product.price}</p>
-                {product.fullPrice && <p className="text-base font-normal opacity-60 line-through">{product.fullPrice}</p>}
+                <p className="text-2xl font-bold text-[var(--primary-color)]">{product.price}</p>
+                {product.fullPrice && <p className="text-lg font-normal opacity-50 line-through">{product.fullPrice}</p>}
             </div>
             <a
                 href={product.productUrl}

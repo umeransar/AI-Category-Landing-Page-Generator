@@ -101,21 +101,21 @@ export const OutputPanel: React.FC<OutputPanelProps> = ({ pageData, emailData, i
                     hero={pageData.hero} 
                     categoryName={pageData.categoryName} 
                     heroImageUrls={pageData.design.heroImageUrls} 
-                    themeVector={pageData.design.themeVectors.hero}
+                    themeVector={pageData.design.themeVectors?.hero}
                 />
                 <IntroSection 
                     intro={pageData.intro} 
-                    themeVector={pageData.design.themeVectors.intro}
+                    themeVector={pageData.design.themeVectors?.intro}
                 />
                 <ProductGrid 
                     products={pageData.products} 
-                    themeVector={pageData.design.themeVectors.productGrid}
+                    themeVector={pageData.design.themeVectors?.productGrid}
                     couponOffer={pageData.couponOffer}
                 />
                 <BrandStorySection brandStory={pageData.brandStory} />
                 <FooterSection 
                     footer={pageData.footer} 
-                    themeVector={pageData.design.themeVectors.footer}
+                    themeVector={pageData.design.themeVectors?.footer}
                 />
             </div>
         )}

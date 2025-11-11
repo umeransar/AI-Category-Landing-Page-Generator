@@ -1,4 +1,5 @@
 
+
 import { GoogleGenAI, Type } from "@google/genai";
 import type { LandingPageContent, Product, EmailData, HeroContent, LandingPageData } from '../types';
 import { PALETTES } from "../themes";
@@ -7,7 +8,7 @@ import { HeroData } from "../components/InputPanel";
 const productSchema = {
     type: Type.OBJECT,
     properties: {
-        title: { type: Type.STRING, description: "Product title." },
+        title: { type: Type.STRING, description: "The exact, concise product title. Do not include any extra marketing text." },
         imageUrl: { type: Type.STRING, description: "Direct URL to the product image." },
         tagline: { type: Type.STRING, description: "A short, one-line description or tagline for the product." },
         price: { type: Type.STRING, description: "The current sale price, formatted as a string (e.g., '$79.99')." },
@@ -34,9 +35,10 @@ const landingPageSchemaBase = {
     brandStory: {
         type: Type.OBJECT,
         properties: {
-            paragraph: { type: Type.STRING, description: "A 3-4 line paragraph about brand values or category uniqueness." },
+            headline: { type: Type.STRING, description: "An engaging headline for the brand story section, like 'Our Story' or 'Crafted with Passion'." },
+            paragraph: { type: Type.STRING, description: "A 3-4 line paragraph with a personal touch about brand values, its origin story, or category uniqueness." },
         },
-        required: ["paragraph"]
+        required: ["headline", "paragraph"]
     },
     couponOffer: {
         type: Type.OBJECT,
@@ -99,13 +101,15 @@ export const extractProductsFromUrl = async (categoryLink: string, productCount:
 
         **CRITICAL INSTRUCTIONS:**
 
-        1.  **IMAGE URL:** The 'imageUrl' MUST be a direct, public URL to the main, high-quality product image file.
+        1.  **PRODUCT TITLE:** The 'title' field MUST contain only the exact product name. Do not add any extra marketing text, category names, or descriptions.
+
+        2.  **IMAGE URL:** The 'imageUrl' MUST be a direct, public URL to the main, high-quality product image file.
             - It must end in a standard image format (e.g., .jpg, .jpeg, .png, .webp).
             - Do NOT provide a URL to a webpage.
             - Do NOT provide a base64 encoded image.
             - Example of a good URL: \`https://cdn.example-store.com/products/image123.jpg\`
 
-        2.  **SALE PRICING:** If a product is on sale, you MUST provide both the sale price and the original full price.
+        3.  **SALE PRICING:** If a product is on sale, you MUST provide both the sale price and the original full price.
             - 'price' field: The current sale price (e.g., '$79.99').
             - 'fullPrice' field: The original, non-sale price (e.g., '$99.99').
             - If the product is NOT on sale, omit the 'fullPrice' field entirely.
@@ -135,6 +139,57 @@ export const extractProductsFromUrl = async (categoryLink: string, productCount:
     } catch (error) {
         console.error("Error extracting products:", error);
         throw new Error("Failed to extract products from the provided URL. Please check the link and try again.");
+    }
+};
+
+export const extractSingleProductFromUrl = async (productLink: string): Promise<Product> => {
+    if (!process.env.API_KEY) {
+        throw new Error("API_KEY environment variable not set");
+    }
+
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+    const prompt = `
+        You are an intelligent e-commerce data extraction AI. Your task is to analyze the provided single product page URL and extract its details.
+
+        **CRITICAL INSTRUCTIONS:**
+
+        1.  **PRODUCT TITLE:** The 'title' field MUST contain only the exact product name. Do not add any extra marketing text, category names, or descriptions.
+
+        2.  **IMAGE URL:** The 'imageUrl' MUST be a direct, public URL to the main, high-quality product image file.
+            - It must end in a standard image format (e.g., .jpg, .jpeg, .png, .webp).
+            - Do NOT provide a URL to a webpage.
+            - Do NOT provide a base64 encoded image.
+            - Example of a good URL: \`https://cdn.example-store.com/products/image123.jpg\`
+
+        3.  **SALE PRICING:** If a product is on sale, you MUST provide both the sale price and the original full price.
+            - 'price' field: The current sale price (e.g., '$79.99').
+            - 'fullPrice' field: The original, non-sale price (e.g., '$99.99').
+            - If the product is NOT on sale, omit the 'fullPrice' field entirely.
+
+        4.  **PRODUCT URL:** The 'productUrl' MUST be the exact URL provided for analysis.
+        
+        **PRODUCT PAGE LINK TO ANALYZE:** ${productLink}
+
+        Strictly adhere to the provided JSON schema for your response. Your response must be a single JSON product object.
+    `;
+    
+    try {
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+            config: {
+                responseMimeType: 'application/json',
+                responseSchema: productSchema,
+            },
+        });
+        const jsonText = response.text.trim();
+        const product = JSON.parse(jsonText) as Product;
+        product.productUrl = productLink;
+        return product;
+    } catch (error) {
+        console.error("Error extracting single product:", error);
+        throw new Error("Failed to extract product from the provided URL. Please check the link and try again.");
     }
 };
 
@@ -170,7 +225,7 @@ export const generateLandingPageData = async (
         - Include Coupon Offer Section: ${isCouponEnabled}
 
         **Instructions:**
-        1.  **Analyze & Copywrite:** Based on the product list, determine the category and write compelling copy for all text fields (intro, brand story, SEO, etc.).
+        1.  **Analyze & Copywrite:** Based on the product list, determine the category and write compelling copy for all text fields. This includes a personal brand story with a headline.
         2.  **Design:** From the list [${paletteNames}], choose the single best palette name for the Thematic Focus. Propose thematic vector icons.
         3.  **Coupon:** If requested, create an enticing coupon offer. If not, omit the 'couponOffer' object.
         4.  **Output:** Your entire response must be a single, valid JSON object that strictly adheres to the provided schema. Do NOT include 'products' or 'hero' objects in your response.
