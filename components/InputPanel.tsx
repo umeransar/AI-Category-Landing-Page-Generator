@@ -35,7 +35,7 @@ const holidays = [
   'Black Friday', 'Cyber Monday', 'Christmas', 'Holiday Season',
 ];
 
-const initialProductState: Product = { title: '', imageUrl: '', tagline: '', price: '', productUrl: '' };
+const initialProductState: Product = { title: '', imageUrl: '', tagline: '', price: '', fullPrice: '', productUrl: '' };
 
 const bannerConfigs = [
     { device: 'Desktop', size: '1920x1080px', key: 'desktop' as const },
@@ -161,7 +161,7 @@ export const InputPanel: React.FC<InputPanelProps> = ({
       setNewProduct(initialProductState);
       setShowManualForm(false);
     } else {
-      alert("Please fill all product fields.");
+      alert("Please fill all required product fields.");
     }
   };
 
@@ -261,10 +261,13 @@ export const InputPanel: React.FC<InputPanelProps> = ({
             ) : (
                 <div className="space-y-3 p-4 border border-gray-600 rounded-lg bg-gray-900/50">
                     <h3 className="text-sm font-medium text-white">New Product</h3>
-                    <input type="text" name="title" value={newProduct.title} onChange={handleNewProductChange} placeholder="Title" required className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500"/>
-                    <input type="url" name="imageUrl" value={newProduct.imageUrl} onChange={handleNewProductChange} placeholder="Image URL" required className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500"/>
-                    <input type="url" name="productUrl" value={newProduct.productUrl} onChange={handleNewProductChange} placeholder="Product URL" required className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500"/>
-                    <input type="text" name="price" value={newProduct.price} onChange={handleNewProductChange} placeholder="Price (e.g., $19.99)" required className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500"/>
+                    <input type="text" name="title" value={newProduct.title} onChange={handleNewProductChange} placeholder="Title*" required className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500"/>
+                    <input type="url" name="imageUrl" value={newProduct.imageUrl} onChange={handleNewProductChange} placeholder="Image URL*" required className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500"/>
+                    <input type="url" name="productUrl" value={newProduct.productUrl} onChange={handleNewProductChange} placeholder="Product URL*" required className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500"/>
+                    <div className="flex gap-2">
+                        <input type="text" name="price" value={newProduct.price} onChange={handleNewProductChange} placeholder="Price (e.g., $19.99)*" required className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500"/>
+                        <input type="text" name="fullPrice" value={newProduct.fullPrice || ''} onChange={handleNewProductChange} placeholder="Full Price (Optional)" className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500"/>
+                    </div>
                     <input type="text" name="tagline" value={newProduct.tagline} onChange={handleNewProductChange} placeholder="Tagline (optional)" className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md focus:ring-indigo-500 focus:border-indigo-500"/>
                     <div className="flex justify-end space-x-2 pt-2">
                         <button type="button" onClick={() => { setShowManualForm(false); setNewProduct(initialProductState); }} className="px-3 py-1.5 border border-gray-600 text-xs font-medium rounded-md text-gray-300 hover:bg-gray-700">Cancel</button>
@@ -288,7 +291,10 @@ export const InputPanel: React.FC<InputPanelProps> = ({
                             <input id={`product-image-upload-${i}`} type="file" className="sr-only" accept="image/*" onChange={(e) => handleProductImageUpload(e.target.files ? e.target.files[0] : null)} />
                         </label>
                         <input type="url" name="productUrl" value={editingProductData.productUrl} onChange={handleEditingProductChange} placeholder="Product URL" className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md"/>
-                        <input type="text" name="price" value={editingProductData.price} onChange={handleEditingProductChange} placeholder="Price" className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md"/>
+                        <div className="flex gap-2">
+                            <input type="text" name="price" value={editingProductData.price} onChange={handleEditingProductChange} placeholder="Price" className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md"/>
+                            <input type="text" name="fullPrice" value={editingProductData.fullPrice || ''} onChange={handleEditingProductChange} placeholder="Full Price (Optional)" className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md"/>
+                        </div>
                         <input type="text" name="tagline" value={editingProductData.tagline} onChange={handleEditingProductChange} placeholder="Tagline" className="w-full px-2 py-1.5 text-sm border border-gray-600 bg-gray-700 text-white rounded-md"/>
                         <div className="flex justify-end space-x-2 pt-2">
                             <button type="button" onClick={handleCancelEdit} className="px-3 py-1.5 border border-gray-600 text-xs font-medium rounded-md text-gray-300 hover:bg-gray-700">Cancel</button>
@@ -300,7 +306,10 @@ export const InputPanel: React.FC<InputPanelProps> = ({
                         <img src={p.imageUrl} alt={p.title} className="w-12 h-12 object-cover rounded flex-shrink-0 bg-gray-500 border border-gray-600" />
                         <div className="flex-grow min-w-0">
                           <p className="text-sm font-medium text-white truncate" title={p.title}>{p.title}</p>
-                          <p className="text-xs text-gray-400">{p.price}</p>
+                          <p className="text-xs text-gray-400">
+                             {p.fullPrice && <span className="line-through text-gray-500 mr-1.5">{p.fullPrice}</span>}
+                             {p.price}
+                          </p>
                         </div>
                         <div className="flex-shrink-0 flex items-center space-x-1">
                           <button type="button" onClick={() => handleEditProduct(i)} className="p-1.5 rounded-full text-gray-400 hover:bg-gray-600 hover:text-white">

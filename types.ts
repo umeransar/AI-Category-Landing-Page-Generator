@@ -5,6 +5,7 @@ export interface Product {
   imageUrl: string;
   tagline: string;
   price: string;
+  fullPrice?: string;
   productUrl: string;
 }
 

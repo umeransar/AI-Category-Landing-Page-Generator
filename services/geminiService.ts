@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import type { LandingPageContent, Product, EmailData, HeroContent, LandingPageData } from '../types';
 import { PALETTES } from "../themes";
@@ -9,7 +10,8 @@ const productSchema = {
         title: { type: Type.STRING, description: "Product title." },
         imageUrl: { type: Type.STRING, description: "Direct URL to the product image." },
         tagline: { type: Type.STRING, description: "A short, one-line description or tagline for the product." },
-        price: { type: Type.STRING, description: "Product price, formatted as a string (e.g., '$99.99')." },
+        price: { type: Type.STRING, description: "The current sale price, formatted as a string (e.g., '$79.99')." },
+        fullPrice: { type: Type.STRING, description: "The original, non-sale price, formatted as a string (e.g., '$99.99'). Omit if not on sale." },
         productUrl: { type: Type.STRING, description: "Direct URL to the product's own page." },
     },
     required: ["title", "imageUrl", "tagline", "price", "productUrl"]
@@ -93,11 +95,24 @@ export const extractProductsFromUrl = async (categoryLink: string, productCount:
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
     const prompt = `
-        You are an intelligent e-commerce data extraction AI. Your task is to analyze the provided e-commerce category URL and extract up to ${productCount} products listed on that page. If there are fewer than ${productCount} products available, extract all of them. For each product, extract the title, a direct image URL, a short tagline or description, the price (as a string), and a direct URL to the product's own page.
-        
-        CATEGORY LINK: ${categoryLink}
+        You are an intelligent e-commerce data extraction AI. Your task is to analyze the provided e-commerce category URL and extract up to ${productCount} products listed on that page. If there are fewer than ${productCount} products available, extract all of them.
 
-        Strictly adhere to the provided JSON schema for your response. Your response should be a JSON array of product objects.
+        **CRITICAL INSTRUCTIONS:**
+
+        1.  **IMAGE URL:** The 'imageUrl' MUST be a direct, public URL to the main, high-quality product image file.
+            - It must end in a standard image format (e.g., .jpg, .jpeg, .png, .webp).
+            - Do NOT provide a URL to a webpage.
+            - Do NOT provide a base64 encoded image.
+            - Example of a good URL: \`https://cdn.example-store.com/products/image123.jpg\`
+
+        2.  **SALE PRICING:** If a product is on sale, you MUST provide both the sale price and the original full price.
+            - 'price' field: The current sale price (e.g., '$79.99').
+            - 'fullPrice' field: The original, non-sale price (e.g., '$99.99').
+            - If the product is NOT on sale, omit the 'fullPrice' field entirely.
+        
+        **CATEGORY LINK TO ANALYZE:** ${categoryLink}
+
+        Strictly adhere to the provided JSON schema for your response. Your response must be a JSON array of product objects.
     `;
     
     const productArraySchema = {

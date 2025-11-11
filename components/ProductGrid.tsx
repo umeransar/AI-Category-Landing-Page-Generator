@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { LandingPageData, Product } from '../types';
 import { ProductCard } from './ProductCard';
 import { ThemeIcon } from './ThemeIcon';
+import { EnvelopeIcon } from './icons/EnvelopeIcon';
 
 interface ProductGridProps {
   products: Product[];
@@ -31,50 +32,62 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ products, themeVector,
         </div>
 
         {couponOffer && (
-          <div className="max-w-2xl mx-auto text-center my-12 p-8 rounded-lg bg-[var(--secondary-color)] shadow-lg border border-white/5">
+          <div
+            className="max-w-3xl mx-auto text-center my-12 p-8 md:p-12 rounded-lg shadow-lg border border-black/10"
+            style={{
+                backgroundColor: 'var(--primary-color)',
+                color: 'var(--text-on-primary-color)'
+            }}
+          >
             {isSubmitted ? (
-              <div>
-                <h3 className="text-2xl font-bold" style={{ color: 'var(--primary-color)' }}>
-                  Thank You!
-                </h3>
-                <p className="mt-3 text-base leading-6 opacity-80">
-                  Your coupon for {couponOffer.discountValue} is on its way to your inbox.
-                </p>
-              </div>
+                <div>
+                    <h3 className="text-3xl font-bold">
+                        Thank You!
+                    </h3>
+                    <p className="mt-4 text-lg leading-6 opacity-90">
+                        Your coupon for <span className="font-bold">{couponOffer.discountValue}</span> is on its way to your inbox.
+                    </p>
+                </div>
             ) : (
-              <>
-                <h3 className="text-2xl font-extrabold">
-                  <span className="block">{couponOffer.headline}</span>
-                </h3>
-                <p className="mt-3 text-base leading-6 opacity-80">
-                  {couponOffer.description} Get <span className="font-bold text-[var(--primary-color)]">{couponOffer.discountValue}</span> on your next order!
-                </p>
-                <form onSubmit={handleCouponSubmit} className="mt-6 sm:flex justify-center">
-                  <div className="min-w-0 flex-1">
-                    <label htmlFor="email-address" className="sr-only">Email address</label>
-                    <input
-                      id="email-address"
-                      name="email"
-                      type="email"
-                      autoComplete="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="block w-full px-5 py-3 border border-white/20 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:border-[var(--primary-color)] focus:ring-1 focus:ring-[var(--primary-color)] bg-white/5"
-                      placeholder="Enter your email"
-                    />
-                  </div>
-                  <div className="mt-3 sm:mt-0 sm:ml-3">
-                    <button
-                      type="submit"
-                      style={{ backgroundColor: 'var(--primary-color)', color: 'var(--text-on-primary-color)'}}
-                      className="block w-full py-3 px-5 rounded-md shadow-md text-base font-medium transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[var(--primary-color)] focus:ring-offset-gray-900"
-                    >
-                      {couponOffer.ctaText}
-                    </button>
-                  </div>
-                </form>
-              </>
+                <>
+                    <div className="flex items-center justify-center gap-4">
+                        <EnvelopeIcon className="w-10 h-10 opacity-90 flex-shrink-0" />
+                        <h3 className="text-3xl md:text-4xl font-extrabold">
+                            {couponOffer.headline}
+                        </h3>
+                    </div>
+                    <p className="mt-4 max-w-xl mx-auto text-lg leading-7 opacity-90">
+                        {couponOffer.description} Enter your email to get <span className="font-bold underline">{couponOffer.discountValue}</span> on your next order!
+                    </p>
+                    <form onSubmit={handleCouponSubmit} className="mt-8 sm:flex justify-center max-w-lg mx-auto gap-3">
+                        <div className="min-w-0 flex-1">
+                            <label htmlFor="email-address" className="sr-only">Email address</label>
+                            <input
+                                id="email-address"
+                                name="email"
+                                type="email"
+                                autoComplete="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="block w-full px-5 py-3 border border-transparent rounded-md shadow-sm placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white bg-black/20 text-white transition"
+                                placeholder="Enter your email address"
+                            />
+                        </div>
+                        <div className="mt-3 sm:mt-0 sm:flex-shrink-0">
+                            <button
+                                type="submit"
+                                style={{
+                                    backgroundColor: 'var(--background-color)',
+                                    color: 'var(--primary-color)'
+                                }}
+                                className="block w-full py-3 px-5 rounded-md shadow-md text-base font-bold transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-white"
+                            >
+                                {couponOffer.ctaText}
+                            </button>
+                        </div>
+                    </form>
+                </>
             )}
           </div>
         )}
